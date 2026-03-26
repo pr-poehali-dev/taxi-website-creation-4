@@ -189,14 +189,36 @@ function Navbar() {
   );
 }
 
+const SEND_ORDER_URL = "https://functions.poehali.dev/9d9ff72d-d04b-4782-9117-6bd9b8fd2e7f";
+
 /* ─── Hero секция ─── */
 function HeroSection() {
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.length > 5) setSubmitted(true);
+    if (phone.length < 6) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(SEND_ORDER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setError("Ошибка отправки. Попробуйте позвонить.");
+      }
+    } catch {
+      setError("Нет связи. Попробуйте позвонить.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatPhone = (val: string) => {
@@ -285,13 +307,18 @@ function HeroSection() {
                     </div>
                   </div>
 
+                  {error && (
+                    <p className="text-red-500 text-sm text-center">{error}</p>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-60 disabled:scale-100"
                     style={{ backgroundColor: "#FFD600", color: "#111" }}
                   >
-                    <Icon name="PhoneCall" size={20} />
-                    Заказать звонок
+                    <Icon name={loading ? "Loader" : "PhoneCall"} size={20} className={loading ? "animate-spin" : ""} />
+                    {loading ? "Отправляем..." : "Заказать звонок"}
                   </button>
 
                   <div className="flex items-center gap-3">
