@@ -28,8 +28,8 @@ def handler(event: dict, context) -> dict:
             "body": json.dumps({"error": "Телефон обязателен"}),
         }
 
-    bot_token = os.environ["TELEGRAM_BOT_TOKEN"]
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
+    bot_token = os.environ["TELEGRAM_BOT_TOKEN"].strip()
+    chat_id = os.environ["TELEGRAM_CHAT_ID"].strip()
 
     now = datetime.now().strftime("%d.%m.%Y %H:%M")
 
